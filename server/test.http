@@ -1,0 +1,2 @@
+DELETE  http://localhost:3001/app//User/61c1eab28ae00ae1f0c7554f
+Content-Type: application/json
