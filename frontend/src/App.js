@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+
 function App() {
   const [data, setData] = useState([
     
@@ -62,6 +65,23 @@ function App() {
     setData(data);
   }
 
+  const handleDelete = (id) => {
+    confirmAlert({
+      title: 'Confirm to submit',
+      message: 'Are you sure to do this.',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => deletedData(id)
+        },
+        {
+          label: 'No',
+          onClick: () => alert('Click No')
+        }
+      ]
+    });
+  } 
+
   useEffect(() => {
     getData();
   }, [])
@@ -82,8 +102,7 @@ function App() {
             <DataField>
               <Data>{item.title}</Data>
               <Button onClick={() => {
-                // alert("Are you sure you want to delete this item?")
-                deletedData(item._id)
+                handleDelete(item._id)
               }}>Delete</Button>
               <Button onClick={() => setEdit(item)}>Edit</Button>
             </DataField>
