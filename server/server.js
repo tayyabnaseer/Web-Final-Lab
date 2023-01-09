@@ -15,6 +15,6 @@ mongoose.connect(process.env.DATABASE_ACCESS, () =>
 
 app.use(express.json());
 app.use(cors());
-app.use("/api", dataRoute);
+app.use("/api/data", dataRoute);
 
 app.listen(3001, () => console.log("server is up and running"));

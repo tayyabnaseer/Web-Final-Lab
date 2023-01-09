@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 function App() {
   const [data, setData] = useState([
@@ -19,11 +19,16 @@ function App() {
     });
     const data = await res.json();
     console.log(data)
-    setData([...data, data]);
+    setData((prev) => {
+      return [
+        ...prev,
+        data
+      ]
+    });
   }
 
   const updateData = async (title, id) => {
-    const res = await fetch("http://localhost:3001/api/data"+id, {
+    const res = await fetch("http://localhost:3001/api/data/"+id, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -32,24 +37,42 @@ function App() {
         title,
       }),
     });
-    const data = await res.json();
-    setData([...data, data]);
+    const result = await res.json();
+    const newData = data.map((item) => item._id == id ? {...item, title: result.title }: item);
+    console.log(newData)
+    setData(newData);
   }
 
-  const deletedData = async (title, id) => {
-    const res = await fetch("http://localhost:3001/api/data"+id, {
+  const deletedData = async (id) => {
+    const res = await fetch("http://localhost:3001/api/data/"+id, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       }
     })
+    const result = await res.json();
+    const newData = data.filter((item) => item._id !== id);
+    setData(newData);
   }
+
+  const getData = async () => {
+    const res = await fetch("http://localhost:3001/api/data")
+    const data = await res.json();
+    console.log(data)
+    setData(data);
+  }
+
+  useEffect(() => {
+    getData();
+  }, [])
 
   return (
     <Container>
       <InputContainer>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} type="text" placeholder="Enter your name" />
-        <Button>Submit</Button>
+        <Button onClick={() => {
+         postData(title)
+        }}>Submit</Button>
       </InputContainer>
       {
         data.map((item, i) => (
@@ -57,16 +80,24 @@ function App() {
             i
           }>
             <DataField>
-              <Data>{item}</Data>
-              <Button>Delete</Button>
-              <Button>Edit</Button>
+              <Data>{item.title}</Data>
+              <Button onClick={() => {
+                // alert("Are you sure you want to delete this item?")
+                deletedData(item._id)
+              }}>Delete</Button>
+              <Button onClick={() => setEdit(item)}>Edit</Button>
             </DataField>
           </DataContainer>
         ))
       }
       <InputContainer>
-        <Input value={edit} onChange={e => setEdit(e.target.value)} type="text" placeholder="Enter your name" />
-        <Button>Submit</Button>
+        <Input value={edit?.title} onChange={e => setEdit((prev) => {
+          return {
+            ...prev,
+            title: e.target.value
+          }
+        })} type="text" placeholder="Enter your name" />
+        <Button onClick={() => updateData(edit.title, edit._id)}>Submit</Button>
       </InputContainer>
     </Container>
   );
